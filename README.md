@@ -1,5 +1,7 @@
 # Keras DeepSpeech
 (Fork from https://github.com/robmsmt/KerasDeepSpeech)
+
+
 [![Build Status](https://travis-ci.org/robmsmt/KerasDeepSpeech.svg?branch=master)](https://travis-ci.org/robmsmt/KerasDeepSpeech)
 
 <!-- ___ -->
@@ -36,7 +38,7 @@ Repository for experimenting with different CTC based model designs for ASR. Sup
 <!-- ## iOS/Android -->
 <!-- See iOS/Android folders -->
 
-## CREDIT 
+## CREDIT
 1. Mozilla [DeepSpeech](https://github.com/mozilla/DeepSpeech)
 2. Baidu [DS1](https://arxiv.org/abs/1412.5567) & [DS2](https://arxiv.org/abs/1512.02595) papers
 
