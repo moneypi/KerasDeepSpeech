@@ -36,7 +36,7 @@ class ReportCallback(callbacks.Callback):
         self.mean_ler_log = []
         self.norm_mean_ler_log = []
 
-        self.earlystopping = True
+        self.earlystopping = False
         self.shuffle_epoch_end = True
         self.force_output = False
 

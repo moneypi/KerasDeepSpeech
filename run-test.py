@@ -12,12 +12,7 @@ from generator import *
 from data import combine_all_wavs_and_trans_from_csvs
 from model import *
 from report import *
-
-import keras
-
-# from keras import backend as K
-from keras.callbacks import ModelCheckpoint, TensorBoard
-
+from keras.optimizers import SGD
 
 def main(args):
     '''
@@ -39,8 +34,8 @@ def main(args):
 
     ## 2. init data generators
     print("Creating data batch generators")
-    testdata = BatchGenerator(dataframe=df_test, dataproperties=test_dataprops,
-                              training=False, batch_size=1, model_input_type=model_input_type)
+    testdata = BatchGenerator(dataframe=df_test, dataproperties=test_dataprops, training=False, batch_size=1,
+                              model_input_type=model_input_type)
 
     ## 3. Load existing or error
     if args.loadcheckpointpath:
@@ -61,16 +56,11 @@ def main(args):
         opt = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True, clipnorm=5)
 
         print("Model loaded")
-
     else:
         # new model
         raise ("You need to load an existing trained model")
 
     model.compile(optimizer=opt, loss=ctc)
-
-    ## 4. test
-
-    train_steps = len(df_test.index) // 200
 
     try:
         y_pred = model.get_layer('ctc').input[0]
@@ -122,12 +112,6 @@ if __name__ == '__main__':
         ted_path = "./data/ted/"
         own_path = "./data/own/"
 
-        # sep = ","
-        # args.train_files = timit_path + "timit_train.csv" + sep + \
-        #                    libri_path + "librivox-dev-clean.csv" + sep + \
-        #                    ted_path + "ted-dev.csv"
-
-        # args.test_files = timit_path + "timit_test.csv"
         args.test_files = own_path + "enron_test.csv"
 
     print(args)

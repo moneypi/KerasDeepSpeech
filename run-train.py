@@ -2,8 +2,7 @@
 
 '''
 
-KERAS Deep Speech - end to end speech recognition. Designed for
-use with CoreML 0.5.1 to use model on iOS
+KERAS Deep Speech - end to end speech recognition.
 
 see conversion scripts
 
@@ -12,11 +11,9 @@ see conversion scripts
 import argparse
 import datetime
 import os
-import socket
 
-import keras
 from keras.callbacks import TensorBoard
-from keras.optimizers import Adam, Nadam
+from keras.optimizers import SGD, Adam, Nadam
 
 from data import combine_all_wavs_and_trans_from_csvs
 from generator import BatchGenerator
@@ -55,7 +52,7 @@ def main(args):
     validdata = BatchGenerator(dataframe=df_valid, dataproperties=valid_dataprops,
                                training=False, batch_size=args.batchsize, model_input_type=model_input_type)
 
-    output_dir = os.path.join('checkpoints/results', 'model%s_%s' % (args.model_arch, args.name))
+    output_dir = os.path.join('checkpoints/results', 'model')
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
 
@@ -80,35 +77,29 @@ def main(args):
             # DeepSpeech1 with Dropout
             model = ds1_dropout(input_dim=26, fc_size=args.fc_size, rnn_size=args.rnn_size, dropout=[0.1, 0.1, 0.1],
                                 output_dim=29)
-
         elif (args.model_arch == 1):
             # DeepSpeech1 - no dropout
             model = ds1(input_dim=26, fc_size=args.fc_size, rnn_size=args.rnn_size, output_dim=29)
-
         elif (args.model_arch == 2):
             # DeepSpeech2 model
             model = ds2_gru_model(input_dim=161, fc_size=args.fc_size, rnn_size=args.rnn_size, output_dim=29)
-
         elif (args.model_arch == 3):
             # own model
             model = ownModel(input_dim=26, fc_size=args.fc_size, rnn_size=args.rnn_size, dropout=[0.1, 0.1, 0.1],
                              output_dim=29)
-
         elif (args.model_arch == 4):
             # graves model
             model = graves(input_dim=26, rnn_size=args.rnn_size, output_dim=29, std=0.5)
-
         elif (args.model_arch == 5):
             # cnn city
             model = cnn_city(input_dim=161, fc_size=args.fc_size, rnn_size=args.rnn_size, output_dim=29)
-
         elif (args.model_arch == 6):
             # constrained model
             model = const(input_dim=26, fc_size=args.fc_size, rnn_size=args.rnn_size, output_dim=29)
         else:
             raise ("model not found")
 
-        print(model.summary(line_length=120))
+        print(model.summary(line_length=140))
 
         # required to save the JSON
         save_model(model, output_dir)
@@ -120,7 +111,7 @@ def main(args):
     elif (args.opt.lower() == 'nadam'):
         opt = Nadam(lr=args.learning_rate, beta_1=0.9, beta_2=0.999, epsilon=1e-8, clipnorm=5)
     else:
-        raise "optimiser not recognised"
+        raise Exception("optimiser not recognised")
 
     model.compile(optimizer=opt, loss=ctc)
 
@@ -174,9 +165,6 @@ def main(args):
     K.clear_session()
 
 
-#######################################################
-
-
 if __name__ == '__main__':
     print("Getting args")
     parser = argparse.ArgumentParser()
@@ -187,9 +175,9 @@ if __name__ == '__main__':
     parser.add_argument('--name', type=str, default='',
                         help='name of run, used to set checkpoint save name. Default uses timestamp')
 
-    parser.add_argument('--train_files', type=str, default='',
+    parser.add_argument('--train_files', type=str, default='./data/ldc93s1/ldc93s1.csv',
                         help='list of all train files, seperated by a comma if multiple')
-    parser.add_argument('--valid_files', type=str, default='',
+    parser.add_argument('--valid_files', type=str, default='./data/ldc93s1/ldc93s1.csv',
                         help='list of all validation files, seperate by a comma if multiple')
 
     parser.add_argument('--train_steps', type=int, default=0,
@@ -224,7 +212,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--sortagrad', type=bool, default=True,
                         help='If true, we sort utterances by their length in the first epoch')
-    parser.add_argument('--epochs', type=int, default=20,
+    parser.add_argument('--epochs', type=int, default=40,
                         help='Number of epochs to train the model')
     parser.add_argument('--batchsize', type=int, default=2,
                         help='batch_size used to train the model')
@@ -233,20 +221,6 @@ if __name__ == '__main__':
     runtime = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')
     if args.name == "":
         args.name = "DS" + str(args.model_arch) + "_" + runtime
-
-    # detect user here too
-    if args.train_files == "" and args.valid_files == "":
-        # if paths to file not specified, assume testing
-        # timit_path = "./data/LDC/timit/"
-        # libri_path = "./data/LibriSpeech/"
-        # ted_path = "./data/ted/"
-        # own_path = "./data/own/"
-        test_path = "./data/ldc93s1/"
-        sep = ","
-        args.train_files = test_path + "ldc93s1.csv"
-        args.valid_files = test_path + "ldc93s1.csv"
-        # args.train_files = libri_path + "librivox-train-clean-100.csv"
-        # args.valid_files = libri_path + "librivox-test-clean.csv"
 
     print(args)
 

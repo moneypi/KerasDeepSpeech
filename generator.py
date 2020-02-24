@@ -5,9 +5,8 @@ from sklearn.utils import shuffle
 import python_speech_features as p
 import scipy.io.wavfile as wav
 import soundfile
-import scipy
 from aubio import source, pvoc, mfcc
-from numpy import vstack, zeros, diff
+from numpy import vstack, zeros
 
 from keras.preprocessing.sequence import pad_sequences
 
@@ -20,7 +19,6 @@ class BatchGenerator(object):
     def __init__(self, dataframe, dataproperties, training, batch_size=16, model_input_type="mfcc"):
         self.training_data = training
         self.model_input_type = model_input_type  ##mfcc, mfcc-aubio, spectrogram, spectrogram-img
-        # self.aubio = False
         self.df = dataframe.copy()
         # ['wav_filesize','transcript','wav_filename']
         self.wavpath = self.df['wav_filename'].tolist()
@@ -149,9 +147,8 @@ class BatchGenerator(object):
             yield ret
 
     def genshuffle(self):
-        self.wavpath, self.transcript, self.finish = shuffle(self.wavpath,
-                                                             self.transcript,
-                                                             self.finish)
+        self.wavpath, self.transcript, self.finish = \
+            shuffle(self.wavpath, self.transcript, self.finish)
 
     def export_test_mfcc(self):
         # this is used to export data e.g. into iOS
@@ -172,8 +169,6 @@ class BatchGenerator(object):
 
         print(words)
         print(labels)
-
-        return
 
 
 def get_normalise(self, k_samples=100):
@@ -210,7 +205,7 @@ def get_max_time(filename):
     fs, audio = wav.read(filename)
     r = p.mfcc(audio, samplerate=fs, numcep=26)  # 2D array -> timesamples x mfcc_features
     # print(r.shape)
-    return r.shape[0]  #
+    return r.shape[0]
 
 
 def get_max_specto_time(filename):
@@ -223,7 +218,7 @@ def get_max_aubio(filename):
     r = aubio(filename)  # 2D array -> timesamples x mfcc_features
     # print(r.shape)
 
-    return r.shape[0]  #
+    return r.shape[0]
 
 
 def make_specto_shape(filename, padlen=778):
@@ -389,6 +384,4 @@ def featurise(audio_clip):
     window = 20
     max_freq = 8000
 
-    return spectrogram_from_file(
-        audio_clip, step=step, window=window,
-        max_freq=max_freq)
+    return spectrogram_from_file(audio_clip, step=step, window=window, max_freq=max_freq)

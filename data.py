@@ -1,11 +1,8 @@
-import fnmatch
 import os
 import pandas as pd
 import char_map
 from utils import text_to_int_sequence
 
-
-#######################################################
 
 def clean(word):
     # token = re.compile("[\w-]+|'m|'t|'ll|'ve|'d|'s|\'")

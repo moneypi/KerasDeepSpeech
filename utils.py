@@ -1,22 +1,13 @@
 from char_map import char_map, index_map
 
-from pympler import muppy, summary, tracker, classtracker
-from pympler.garbagegraph import GarbageGraph, start_debug_garbage
-from pympler.web import start_profiler, start_in_background
+from pympler import muppy, summary, tracker
+from pympler.web import start_in_background
 import types
 
 import resource
-import tensorflow as tf
 import keras
 from keras.models import model_from_json, load_model
 import keras.backend as K
-
-import inspect
-import re
-import sys
-
-import h5py
-import yaml
 
 from model import clipped_relu, selu
 
@@ -63,8 +54,6 @@ def save_trimmed_model(model, name):
     # # serialize weights to HDF5
     model.save_weights(weightsfilename)
 
-    return
-
 
 def save_model(model, name):
     if name:
@@ -80,8 +69,6 @@ def save_model(model, name):
 
         # save model as combined in single file - contrains arch/weights/config/state
         model.save(str(name) + "/cmodel.h5")
-
-    return
 
 
 def load_model_checkpoint(path, summary=True):

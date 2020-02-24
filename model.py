@@ -2,42 +2,20 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
-import keras.backend as K
-from keras.models import Model
-from keras.layers import Input
-from keras.layers import TimeDistributed
-from keras.layers import Dense
 from keras.layers import LSTM
-from keras.layers import Bidirectional
-from keras.layers import Lambda
-from keras.layers import Dropout
-from keras.regularizers import l2
 from keras.initializers import random_normal
-from keras.utils.conv_utils import conv_output_length
 from keras.layers import GaussianNoise
 
 '''
 This file builds the models
-
-
 '''
 
-import numpy as np
-
 from keras import backend as K
-from keras.models import Model, Sequential
-from keras.layers.recurrent import SimpleRNN
-from keras.layers import Dense, Activation, Bidirectional, Reshape, Flatten, Lambda, Input, \
-    Masking, Convolution1D, BatchNormalization, GRU, Conv1D, RepeatVector, Conv2D
-from keras.optimizers import SGD, adam
-from keras.layers import ZeroPadding1D, Convolution1D, ZeroPadding2D, Convolution2D, MaxPooling2D, GlobalMaxPooling2D
+from keras.models import Model
+from keras.layers import Dense, Bidirectional, Lambda, Input, BatchNormalization, GRU, Conv1D
+from keras.layers import ZeroPadding1D
 from keras.layers import TimeDistributed, Dropout
-from keras.layers.merge import add  # , # concatenate BAD FOR COREML
-from keras.utils.conv_utils import conv_output_length
 from keras.activations import relu
-
-import tensorflow as tf
 
 
 def selu(x):
@@ -62,7 +40,6 @@ def ctc_lambda_func(args):
     y_pred, labels, input_length, label_length = args
 
     # hack for load_model
-    import tensorflow as tf
 
     ''' from TF: Input requirements
     1. sequence_length(b) <= time for all b
@@ -147,10 +124,7 @@ def ds1_dropout(input_dim=26, fc_size=2048, rnn_size=512, dropout=[0.1, 0.1, 0.1
 
     # Keras doesn't currently support loss funcs with extra parameters
     # so CTC loss is implemented in a lambda layer
-    loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred,
-                                                                       labels,
-                                                                       input_length,
-                                                                       label_length])
+    loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred, labels, input_length, label_length])
 
     model = Model(inputs=[input_data, labels, input_length, label_length], outputs=loss_out)
 
@@ -214,10 +188,7 @@ def ds1(input_dim=26, fc_size=1024, rnn_size=1024, output_dim=29):
 
     # Keras doesn't currently support loss funcs with extra parameters
     # so CTC loss is implemented in a lambda layer
-    loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred,
-                                                                       labels,
-                                                                       input_length,
-                                                                       label_length])
+    loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred, labels, input_length, label_length])
 
     model = Model(inputs=[input_data, labels, input_length, label_length], outputs=[loss_out])
 
@@ -283,10 +254,7 @@ def ds2_gru_model(input_dim=161, fc_size=1024, rnn_size=512, output_dim=29, init
 
     # Keras doesn't currently support loss funcs with extra parameters
     # so CTC loss is implemented in a lambda layer
-    loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred,
-                                                                       labels,
-                                                                       input_length,
-                                                                       label_length])
+    loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred, labels, input_length, label_length])
 
     model = Model(inputs=[input_data, labels, input_length, label_length], outputs=loss_out)
 
@@ -352,10 +320,7 @@ def ownModel(input_dim=26, fc_size=512, rnn_size=512, dropout=[0.1, 0.1, 0.1], o
 
     # Keras doesn't currently support loss funcs with extra parameters
     # so CTC loss is implemented in a lambda layer
-    loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred,
-                                                                       labels,
-                                                                       input_length,
-                                                                       label_length])
+    loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred, labels, input_length, label_length])
 
     model = Model(inputs=[input_data, labels, input_length, label_length], outputs=loss_out)
 
@@ -378,9 +343,7 @@ def graves(input_dim=26, rnn_size=512, output_dim=29, std=0.6):
     # x = BatchNormalization(axis=-1)(input_data)
 
     x = GaussianNoise(std)(input_data)
-    x = Bidirectional(LSTM(rnn_size,
-                           return_sequences=True,
-                           implementation=0))(x)
+    x = Bidirectional(LSTM(rnn_size, return_sequences=True, implementation=0))(x)
     y_pred = TimeDistributed(Dense(output_dim, activation='softmax'))(x)
 
     # Input of labels and other CTC requirements
@@ -390,10 +353,7 @@ def graves(input_dim=26, rnn_size=512, output_dim=29, std=0.6):
 
     # Keras doesn't currently support loss funcs with extra parameters
     # so CTC loss is implemented in a lambda layer
-    loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred,
-                                                                       labels,
-                                                                       input_length,
-                                                                       label_length])
+    loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred, labels, input_length, label_length])
 
     model = Model(inputs=[input_data, labels, input_length, label_length], outputs=[loss_out])
 
@@ -423,9 +383,7 @@ def cnn_city(input_dim=161, fc_size=1024, rnn_size=512, output_dim=29, initializ
     # kernal_size = heigth and width of conv window
     # strides = stepsize on conv window
 
-    kernel_size = 11  #
-    conv_depth_1 = 64  #
-    conv_depth_2 = 256  #
+    kernel_size = 11
 
     input_data = Input(shape=(None, input_dim), name='the_input')  # batch x time x spectro size
     conv = ZeroPadding1D(padding=(0, 2048))(input_data)  # pad on time dimension
@@ -444,10 +402,7 @@ def cnn_city(input_dim=161, fc_size=1024, rnn_size=512, output_dim=29, initializ
 
     # Keras doesn't currently support loss funcs with extra parameters
     # so CTC loss is implemented in a lambda layer
-    loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred,
-                                                                       labels,
-                                                                       input_length,
-                                                                       label_length])
+    loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred, labels, input_length, label_length])
 
     model = Model(inputs=[input_data, labels, input_length, label_length], outputs=loss_out)
 
@@ -487,17 +442,13 @@ def const(input_dim=26, fc_size=1024, rnn_size=1024, output_dim=29):
 
     # Keras doesn't currently support loss funcs with extra parameters
     # so CTC loss is implemented in a lambda layer
-    loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred,
-                                                                       labels,
-                                                                       input_length,
-                                                                       label_length])
+    loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')([y_pred, labels, input_length, label_length])
 
     model = Model(inputs=[input_data, labels, input_length, label_length], outputs=[loss_out])
 
     return model
 
 
-###########################
 # TRANSFER MODEL WEIGHTS
 
 def build_const_no_ctc_and_xfer_weights(loaded_model, input_dim=26, fc_size=1024, rnn_size=512,
@@ -639,9 +590,7 @@ def build_ds5_no_ctc_and_xfer_weights(loaded_model, input_dim=161, fc_size=1024,
     for ind, i in enumerate(loaded_model.layers):
         print(ind, i)
 
-    kernel_size = 11  #
-    conv_depth_1 = 64  #
-    conv_depth_2 = 256  #
+    kernel_size = 11
 
     input_data = Input(shape=(None, input_dim), name='the_input')  # batch x time x spectro size
     conv = ZeroPadding1D(padding=(0, 2048))(input_data)  # pad on time dimension
