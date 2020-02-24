@@ -21,7 +21,7 @@ def main(args):
     '''
 
     print("Getting data from arguments")
-    test_dataprops, df_test = combine_all_wavs_and_trans_from_csvs(args.test_files, sortagrad=False)
+    test_dataprops, df_test = combine_all_wavs_and_trans_from_csvs(args.test_files)
 
     # check any special data model requirments e.g. a spectrogram
     if (args.model_arch == 1):
@@ -35,7 +35,7 @@ def main(args):
 
     ## 2. init data generators
     print("Creating data batch generators")
-    testdata = BatchGenerator(dataframe=df_test, training=False, batch_size=1, model_input_type=model_input_type)
+    testdata = BatchGenerator(dataframe=df_test, training=False, batch_size=2, model_input_type=model_input_type)
 
     ## 3. Load existing or error
     if args.loadcheckpointpath:

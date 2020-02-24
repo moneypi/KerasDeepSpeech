@@ -20,12 +20,9 @@ class BatchGenerator(object):
         self.training_data = training
         self.model_input_type = model_input_type  ##mfcc, mfcc-aubio, spectrogram, spectrogram-img
         self.df = dataframe.copy()
-        # ['wav_filesize','transcript','wav_filename']
+        # [transcript','wav_filename']
         self.wavpath = self.df['wav_filename'].tolist()
         self.transcript = self.df['transcript'].tolist()
-        self.finish = self.df['wav_filesize'].tolist()
-        self.start = np.zeros(len(self.finish))
-        self.length = self.finish
         self.shuffling = True
 
         self.batch_size = batch_size
@@ -146,8 +143,7 @@ class BatchGenerator(object):
             yield ret
 
     def genshuffle(self):
-        self.wavpath, self.transcript, self.finish = \
-            shuffle(self.wavpath, self.transcript, self.finish)
+        self.wavpath, self.transcript = shuffle(self.wavpath, self.transcript)
 
     def export_test_mfcc(self):
         # this is used to export data e.g. into iOS

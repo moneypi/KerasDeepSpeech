@@ -18,7 +18,7 @@ def clean(word):
     return new
 
 
-def combine_all_wavs_and_trans_from_csvs(csvslist, sortagrad=True, createwordlist=False, delBigTranscripts=True):
+def combine_all_wavs_and_trans_from_csvs(csvslist, createwordlist=False, delBigTranscripts=True):
     '''Assume that data is in csv already exists with data in form
         path, size, transcript
         this is best approach for loading in moz deepspeech processed files.
@@ -95,10 +95,7 @@ def combine_all_wavs_and_trans_from_csvs(csvslist, sortagrad=True, createwordlis
         'max_intseq_length': max_intseq_length
     }
 
-    if sortagrad:
-        df_final = df_final.sort_values(by='wav_filesize', ascending=True)
-    else:
-        df_final = df_final.sample(frac=1).reset_index(drop=True)
+    df_final = df_final.sample(frac=1).reset_index(drop=True)
 
     # remove mem
     del df_all

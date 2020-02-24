@@ -32,8 +32,8 @@ def main(args):
 
     # 1. combine all data into 2 dataframes (train, valid)
     print("Getting data from arguments")
-    train_dataprops, df_train = combine_all_wavs_and_trans_from_csvs(args.train_files, sortagrad=args.sortagrad)
-    valid_dataprops, df_valid = combine_all_wavs_and_trans_from_csvs(args.valid_files, sortagrad=args.sortagrad)
+    train_dataprops, df_train = combine_all_wavs_and_trans_from_csvs(args.train_files)
+    valid_dataprops, df_valid = combine_all_wavs_and_trans_from_csvs(args.valid_files)
 
     # check any special data model requirments e.g. a spectrogram
     if (args.model_arch == 1):
@@ -210,8 +210,6 @@ if __name__ == '__main__':
     parser.add_argument('--opt', type=str, default='sgd',
                         help='the optimiser to use, default is SGD, ')
 
-    parser.add_argument('--sortagrad', type=bool, default=True,
-                        help='If true, we sort utterances by their length in the first epoch')
     parser.add_argument('--epochs', type=int, default=40,
                         help='Number of epochs to train the model')
     parser.add_argument('--batchsize', type=int, default=2,
