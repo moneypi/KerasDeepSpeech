@@ -2,7 +2,7 @@ import numpy as np
 from numpy.lib.stride_tricks import as_strided
 from sklearn.utils import shuffle
 
-import python_speech_features as p
+import python_speech_features as psf
 import scipy.io.wavfile as wav
 import soundfile
 from aubio import source, pvoc, mfcc
@@ -16,7 +16,7 @@ from utils import text_to_int_sequence
 # Data batch generator, responsible for providing the data to fit_generator
 
 class BatchGenerator(object):
-    def __init__(self, dataframe, dataproperties, training, batch_size=16, model_input_type="mfcc"):
+    def __init__(self, dataframe, training, batch_size=16, model_input_type="mfcc"):
         self.training_data = training
         self.model_input_type = model_input_type  ##mfcc, mfcc-aubio, spectrogram, spectrogram-img
         self.df = dataframe.copy()
@@ -38,7 +38,6 @@ class BatchGenerator(object):
 
         # Free up memory of unneeded data
         del dataframe
-        del dataproperties
         self.df = None
         del self.df
 
@@ -203,7 +202,7 @@ def get_intseq(trans, max_intseq_length=80):
 
 def get_max_time(filename):
     fs, audio = wav.read(filename)
-    r = p.mfcc(audio, samplerate=fs, numcep=26)  # 2D array -> timesamples x mfcc_features
+    r = psf.mfcc(audio, samplerate=fs, numcep=26)  # 2D array -> timesamples x mfcc_features
     # print(r.shape)
     return r.shape[0]
 
@@ -238,7 +237,7 @@ def make_aubio_shape(filename, padlen=778):
 
 def make_mfcc_shape(filename, padlen=778):
     fs, audio = wav.read(filename)
-    r = p.mfcc(audio, samplerate=fs, numcep=26)  # 2D array -> timesamples x mfcc_features
+    r = psf.mfcc(audio, samplerate=fs, numcep=26)  # 2D array -> timesamples x mfcc_features
     t = np.transpose(r)  # 2D array ->  mfcc_features x timesamples
     X = pad_sequences(t, maxlen=padlen, dtype='float', padding='post', truncating='post').T
     return X  # 2D array -> MAXtimesamples x mfcc_features {778 x 26}

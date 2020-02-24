@@ -47,10 +47,10 @@ def main(args):
 
     ## 2. init data generators
     print("Creating data batch generators")
-    traindata = BatchGenerator(dataframe=df_train, dataproperties=train_dataprops,
-                               training=True, batch_size=args.batchsize, model_input_type=model_input_type)
-    validdata = BatchGenerator(dataframe=df_valid, dataproperties=valid_dataprops,
-                               training=False, batch_size=args.batchsize, model_input_type=model_input_type)
+    traindata = BatchGenerator(dataframe=df_train, training=True, batch_size=args.batchsize,
+                               model_input_type=model_input_type)
+    validdata = BatchGenerator(dataframe=df_valid, training=False, batch_size=args.batchsize,
+                               model_input_type=model_input_type)
 
     output_dir = os.path.join('checkpoints/results', 'model')
     if not os.path.isdir(output_dir):

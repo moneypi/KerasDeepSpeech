@@ -14,6 +14,7 @@ from model import *
 from report import *
 from keras.optimizers import SGD
 
+
 def main(args):
     '''
     only args.name args.test_files and args.loadcheckpointpath can be passed as args
@@ -34,8 +35,7 @@ def main(args):
 
     ## 2. init data generators
     print("Creating data batch generators")
-    testdata = BatchGenerator(dataframe=df_test, dataproperties=test_dataprops, training=False, batch_size=1,
-                              model_input_type=model_input_type)
+    testdata = BatchGenerator(dataframe=df_test, training=False, batch_size=1, model_input_type=model_input_type)
 
     ## 3. Load existing or error
     if args.loadcheckpointpath:

@@ -59,10 +59,6 @@ def ctc(y_true, y_pred):
     return y_pred
 
 
-######################################
-
-######################################
-
 def ds1_dropout(input_dim=26, fc_size=2048, rnn_size=512, dropout=[0.1, 0.1, 0.1], output_dim=29):
     """ DeepSpeech 1 Implementation with Dropout
 
@@ -274,8 +270,6 @@ def ownModel(input_dim=26, fc_size=512, rnn_size=512, dropout=[0.1, 0.1, 0.1], o
         1 Fully connected layer of fc_size with SELU
         1 Dropout layer
         1 Softmax out
-
-
     """
     from keras.utils.generic_utils import get_custom_objects
     get_custom_objects().update({"clipped_relu": clipped_relu})
