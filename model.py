@@ -257,7 +257,7 @@ def ds2_gru_model(input_dim=161, fc_size=1024, rnn_size=512, output_dim=29, init
     return model
 
 
-def ownModel(input_dim=26, fc_size=512, rnn_size=512, dropout=[0.1, 0.1, 0.1], output_dim=29):
+def ownModel(input_shape, fc_size=512, rnn_size=512, dropout=[0.1, 0.1, 0.1], output_dim=29):
     """ Own model BN+SELU-FC+GRU+BN+DR
 
     Architecture:
@@ -277,7 +277,7 @@ def ownModel(input_dim=26, fc_size=512, rnn_size=512, dropout=[0.1, 0.1, 0.1], o
     K.set_learning_phase(1)
 
     # Creates a tensor there are usually 26 MFCC
-    input_data = Input(name='the_input', shape=(None, input_dim))  # >>(?, max_batch_seq, 26)
+    input_data = Input(name='the_input', shape=input_shape)  # >>(?, max_batch_seq, 26)
 
     x = BatchNormalization(axis=-1, momentum=0.99, epsilon=1e-3, center=True, scale=True)(input_data)
 

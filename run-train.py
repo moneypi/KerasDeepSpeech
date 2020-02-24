@@ -51,6 +51,8 @@ def main(args):
                                model_input_type=model_input_type)
     validdata = BatchGenerator(dataframe=df_valid, training=False, batch_size=args.batchsize,
                                model_input_type=model_input_type)
+    inputs, outputs = traindata.get_batch(0)
+    input_shape = inputs['the_input'].shape[1:]
 
     output_dir = os.path.join('checkpoints/results', 'model')
     if not os.path.isdir(output_dir):
@@ -85,7 +87,7 @@ def main(args):
             model = ds2_gru_model(input_dim=161, fc_size=args.fc_size, rnn_size=args.rnn_size, output_dim=29)
         elif (args.model_arch == 3):
             # own model
-            model = ownModel(input_dim=26, fc_size=args.fc_size, rnn_size=args.rnn_size, dropout=[0.1, 0.1, 0.1],
+            model = ownModel(input_shape, fc_size=args.fc_size, rnn_size=args.rnn_size, dropout=[0.1, 0.1, 0.1],
                              output_dim=29)
         elif (args.model_arch == 4):
             # graves model
