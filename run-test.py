@@ -12,8 +12,11 @@ from generator import *
 from data import combine_all_wavs_and_trans_from_csvs
 from model import *
 from report import *
-from keras.optimizers import SGD
+from tensorflow.keras.optimizers import SGD
+import socket
+import tensorflow as tf
 
+tf.compat.v1.disable_eager_execution()
 
 def main(args):
     '''
@@ -71,13 +74,13 @@ def main(args):
 
     input_data = model.get_layer('the_input').input
 
-    K.set_learning_phase(0)
-    report = K.function([input_data, K.learning_phase()], [y_pred])
+    tf.keras.backend.set_learning_phase(0)
+    report = tf.keras.backend.function([input_data, tf.keras.backend.learning_phase()], [y_pred])
     report_cb = ReportCallback(report, testdata, model, args.name, save=False)
     report_cb.force_output = True
     report_cb.on_epoch_end(0, logs=None)
 
-    K.clear_session()
+    tf.keras.backend.clear_session()
 
 
 if __name__ == '__main__':

@@ -1,17 +1,15 @@
-from keras import callbacks
 from text import *
 
 import itertools
 import numpy as np
 import os
-import socket
 import sys
-import keras.backend as K
+import tensorflow as tf
 
 from utils import save_model, int_to_text_sequence
 
 
-class ReportCallback(callbacks.Callback):
+class ReportCallback(tf.keras.callbacks.Callback):
     def __init__(self, test_func, validdata, model, runtimestr, save):
         self.test_func = test_func
 
@@ -102,7 +100,7 @@ class ReportCallback(callbacks.Callback):
         # del decode_sent,
 
     def on_epoch_end(self, epoch, logs=None):
-        K.set_learning_phase(0)
+        tf.keras.backend.set_learning_phase(0)
 
         if (self.shuffle_epoch_end):
             print("shuffle_epoch_end")
@@ -140,7 +138,7 @@ class ReportCallback(callbacks.Callback):
                         sys.exit()
 
         # activate learning phase - incase keras doesn't
-        K.set_learning_phase(1)
+        tf.keras.backend.set_learning_phase(1)
 
 
 def decode_batch(test_func, word_batch, batch_size):

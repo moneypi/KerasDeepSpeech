@@ -8,7 +8,7 @@ import soundfile
 from aubio import source, pvoc, mfcc
 from numpy import vstack, zeros
 
-from keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 from utils import text_to_int_sequence
 

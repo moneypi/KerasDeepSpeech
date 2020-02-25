@@ -12,8 +12,9 @@ import argparse
 import datetime
 import os
 
-from keras.callbacks import TensorBoard
-from keras.optimizers import SGD, Adam, Nadam
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.optimizers import SGD, Adam, Nadam
+import tensorflow as tf
 
 from data import combine_all_wavs_and_trans_from_csvs
 from generator import BatchGenerator
@@ -23,7 +24,7 @@ from utils import load_model_checkpoint, save_model, MemoryCallback
 
 # Prevent pool_allocator message
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
+tf.compat.v1.disable_eager_execution()
 
 def main(args):
     '''
@@ -140,7 +141,9 @@ def main(args):
     y_pred = model.get_layer('ctc').input[0]
     input_data = model.get_layer('the_input').input
 
-    report = K.function([input_data, K.learning_phase()], [y_pred])
+    report = tf.keras.backend.function([input_data, tf.keras.backend.learning_phase()], [y_pred])
+    # report = K.function([input_data, K.learning_phase()], [y_pred])
+
     report_cb = ReportCallback(report, validdata, model, args.name, save=True)
 
     cb_list.append(report_cb)
@@ -159,7 +162,7 @@ def main(args):
     print("NormMeanLER:", report_cb.norm_mean_ler_log)
 
     # export to csv?
-    K.clear_session()
+    tf.keras.backend.clear_session()
 
 
 if __name__ == '__main__':

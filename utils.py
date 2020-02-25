@@ -3,11 +3,10 @@ from char_map import char_map, index_map
 from pympler import muppy, summary, tracker
 from pympler.web import start_in_background
 import types
-
+import tensorflow as tf
 import resource
-import keras
-from keras.models import model_from_json, load_model
-import keras.backend as K
+from tensorflow import keras
+from tensorflow.keras.models import model_from_json, load_model
 
 from model import clipped_relu, selu
 
@@ -73,7 +72,7 @@ def save_model(model, name):
 
 def load_model_checkpoint(path, summary=True):
     # this is a terrible hack
-    from keras.utils.generic_utils import get_custom_objects
+    from tensorflow.keras.utils import get_custom_objects
     # get_custom_objects().update({"tf": tf})
     get_custom_objects().update({"clipped_relu": clipped_relu})
     get_custom_objects().update({"selu": selu})
@@ -86,7 +85,7 @@ def load_model_checkpoint(path, summary=True):
     loaded_model_json = json_file.read()
     json_file.close()
 
-    K.set_learning_phase(1)
+    tf.keras.backend.set_learning_phase(1)
     loaded_model = model_from_json(loaded_model_json)
 
     # load weights into loaded model
@@ -101,7 +100,7 @@ def load_model_checkpoint(path, summary=True):
 
 def load_cmodel_checkpoint(path, summary=True):
     # this is a terrible hack
-    from keras.utils.generic_utils import get_custom_objects
+    from tensorflow.keras.utils import get_custom_objects
     # get_custom_objects().update({"tf": tf})
     get_custom_objects().update({"clipped_relu": clipped_relu})
     get_custom_objects().update({"selu": selu})
@@ -109,7 +108,7 @@ def load_cmodel_checkpoint(path, summary=True):
 
     cfilename = path + ".h5"
 
-    K.set_learning_phase(1)
+    tf.keras.backend.set_learning_phase(1)
     loaded_model = load_model(cfilename)
 
     if (summary):

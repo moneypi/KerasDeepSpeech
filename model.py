@@ -2,20 +2,20 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from keras.layers import LSTM
-from keras.initializers import random_normal
-from keras.layers import GaussianNoise
+from tensorflow.keras.layers import LSTM
+from tensorflow import random_normal_initializer
+from tensorflow.keras.layers import GaussianNoise
 
 '''
 This file builds the models
 '''
-
-from keras import backend as K
-from keras.models import Model
-from keras.layers import Dense, Bidirectional, Lambda, Input, BatchNormalization, GRU, Conv1D
-from keras.layers import ZeroPadding1D
-from keras.layers import TimeDistributed, Dropout
-from keras.activations import relu
+from tensorflow.keras.backend import elu, ctc_batch_cost, set_learning_phase
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, Bidirectional, Lambda, Input, BatchNormalization, GRU, Conv1D
+from tensorflow.keras.layers import ZeroPadding1D
+from tensorflow.keras.layers import TimeDistributed, Dropout
+from tensorflow.keras.activations import relu
+from tensorflow.keras.utils import get_custom_objects
 
 
 def selu(x):
@@ -28,7 +28,7 @@ def selu(x):
     """
     alpha = 1.6732632423543772848170429916717
     scale = 1.0507009873554804934193349852946
-    return scale * K.elu(x, alpha)
+    return scale * elu(x, alpha)
 
 
 def clipped_relu(x):
@@ -52,7 +52,7 @@ def ctc_lambda_func(args):
     # print("input_length:",input_length.shape)  # (?, 1)
     # print("label_length:",label_length.shape)  # (?, 1)
 
-    return K.ctc_batch_cost(labels, y_pred, input_length, label_length)
+    return ctc_batch_cost(labels, y_pred, input_length, label_length)
 
 
 def ctc(y_true, y_pred):
@@ -80,15 +80,14 @@ def ds1_dropout(input_dim=26, fc_size=2048, rnn_size=512, dropout=[0.1, 0.1, 0.1
     Reference:
         https://arxiv.org/abs/1412.5567
     """
-    from keras.utils.generic_utils import get_custom_objects
     get_custom_objects().update({"clipped_relu": clipped_relu})
-    K.set_learning_phase(1)
+    set_learning_phase(1)
 
     # Creates a tensor there are usually 26 MFCC
     input_data = Input(name='the_input', shape=(None, input_dim))  # >>(?, max_batch_seq, 26)
 
     # First 3 FC layers
-    init = random_normal(stddev=0.046875)
+    init = random_normal_initializer(stddev=0.046875)
     x = TimeDistributed(
         Dense(fc_size, name='fc1', kernel_initializer=init, bias_initializer=init, activation=clipped_relu))(
         input_data)  # >>(?, 778, 2048)
@@ -147,12 +146,11 @@ def ds1(input_dim=26, fc_size=1024, rnn_size=1024, output_dim=29):
         https://arxiv.org/abs/1412.5567
     """
     # hack to get clipped_relu to work on bidir layer
-    from keras.utils.generic_utils import get_custom_objects
     get_custom_objects().update({"clipped_relu": clipped_relu})
 
     input_data = Input(name='the_input', shape=(None, input_dim))  # >>(?, 778, 26)
 
-    init = random_normal(stddev=0.046875)
+    init = random_normal_initializer(stddev=0.046875)
 
     # First 3 FC layers
     x = TimeDistributed(
@@ -215,7 +213,7 @@ def ds2_gru_model(input_dim=161, fc_size=1024, rnn_size=512, output_dim=29, init
         https://arxiv.org/abs/1512.02595
     """
 
-    K.set_learning_phase(1)
+    set_learning_phase(1)
 
     input_data = Input(shape=(None, input_dim), name='the_input')
     x = BatchNormalization(axis=-1, momentum=0.99, epsilon=1e-3, center=True, scale=True)(input_data)
@@ -271,10 +269,9 @@ def ownModel(input_shape, output_shape, fc_size=512, rnn_size=512, dropout=[0.1,
         1 Dropout layer
         1 Softmax out
     """
-    from keras.utils.generic_utils import get_custom_objects
     get_custom_objects().update({"clipped_relu": clipped_relu})
     get_custom_objects().update({"selu": selu})
-    K.set_learning_phase(1)
+    set_learning_phase(1)
 
     # Creates a tensor there are usually 26 MFCC
     input_data = Input(name='the_input', shape=input_shape)  # >>(?, max_batch_seq, 26)
@@ -282,7 +279,7 @@ def ownModel(input_shape, output_shape, fc_size=512, rnn_size=512, dropout=[0.1,
     x = BatchNormalization(axis=-1, momentum=0.99, epsilon=1e-3, center=True, scale=True)(input_data)
 
     # First 3 FC layers
-    init = random_normal(stddev=0.046875)
+    init = random_normal_initializer(stddev=0.046875)
     x = TimeDistributed(Dense(fc_size, name='fc1', kernel_initializer=init, bias_initializer=init, activation=selu))(
         x)  # >>(?, 778, 2048)
     x = TimeDistributed(Dropout(dropout[0]))(x)
@@ -332,7 +329,7 @@ def graves(input_dim=26, rnn_size=512, output_dim=29, std=0.6):
         ftp://ftp.idsia.ch/pub/juergen/icml2006.pdf
     """
 
-    K.set_learning_phase(1)
+    set_learning_phase(1)
     input_data = Input(name='the_input', shape=(None, input_dim))
     # x = BatchNormalization(axis=-1)(input_data)
 
@@ -418,7 +415,7 @@ def const(input_dim=26, fc_size=1024, rnn_size=1024, output_dim=29):
     # loop FC
     input_data = Input(name='the_input', shape=(None, input_dim))  # >>(?, time, input_dim)
     x = input_data
-    init = random_normal(stddev=0.046875)
+    init = random_normal_initializer(stddev=0.046875)
 
     layercount = 3
     for l in range(layercount):
@@ -451,7 +448,7 @@ def build_const_no_ctc_and_xfer_weights(loaded_model, input_dim=26, fc_size=1024
     CONST model but convert into CoreML
     '''
 
-    K.set_learning_phase(0)
+    set_learning_phase(0)
 
     for ind, i in enumerate(loaded_model.layers):
         print(ind, i)
@@ -526,10 +523,9 @@ def build_ds0_no_ctc_and_xfer_weights(loaded_model, input_dim=26, fc_size=1024, 
     DS1 model but convert into CoreML
     '''
 
-    from keras.utils.generic_utils import get_custom_objects
     get_custom_objects().update({"clipped_relu": clipped_relu})
 
-    K.set_learning_phase(0)
+    set_learning_phase(0)
 
     for ind, i in enumerate(loaded_model.layers):
         print(ind, i)
@@ -580,7 +576,7 @@ def build_ds5_no_ctc_and_xfer_weights(loaded_model, input_dim=161, fc_size=1024,
                                       conv_layers=4):
     """ Pure CNN implementation"""
 
-    K.set_learning_phase(0)
+    set_learning_phase(0)
     for ind, i in enumerate(loaded_model.layers):
         print(ind, i)
 
