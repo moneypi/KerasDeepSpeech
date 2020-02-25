@@ -53,6 +53,7 @@ def main(args):
                                model_input_type=model_input_type)
     inputs, outputs = traindata.get_batch(0)
     input_shape = inputs['the_input'].shape[1:]
+    output_shape = inputs['the_labels'].shape[1:]
 
     output_dir = os.path.join('checkpoints/results', 'model')
     if not os.path.isdir(output_dir):
@@ -87,8 +88,8 @@ def main(args):
             model = ds2_gru_model(input_dim=161, fc_size=args.fc_size, rnn_size=args.rnn_size, output_dim=29)
         elif (args.model_arch == 3):
             # own model
-            model = ownModel(input_shape, fc_size=args.fc_size, rnn_size=args.rnn_size, dropout=[0.1, 0.1, 0.1],
-                             output_dim=29)
+            model = ownModel(input_shape, output_shape, fc_size=args.fc_size, rnn_size=args.rnn_size,
+                             dropout=[0.1, 0.1, 0.1], output_dim=29)
         elif (args.model_arch == 4):
             # graves model
             model = graves(input_dim=26, rnn_size=args.rnn_size, output_dim=29, std=0.5)
@@ -150,12 +151,6 @@ def main(args):
                         callbacks=cb_list,
                         validation_data=validdata.next_batch(),
                         validation_steps=args.valid_steps,
-                        initial_epoch=0,
-                        verbose=1,
-                        class_weight=None,
-                        max_q_size=10,
-                        workers=1,
-                        pickle_safe=False
                         )
 
     ## These are the most important metrics

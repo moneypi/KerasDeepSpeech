@@ -257,7 +257,7 @@ def ds2_gru_model(input_dim=161, fc_size=1024, rnn_size=512, output_dim=29, init
     return model
 
 
-def ownModel(input_shape, fc_size=512, rnn_size=512, dropout=[0.1, 0.1, 0.1], output_dim=29):
+def ownModel(input_shape, output_shape, fc_size=512, rnn_size=512, dropout=[0.1, 0.1, 0.1], output_dim=29):
     """ Own model BN+SELU-FC+GRU+BN+DR
 
     Architecture:
@@ -308,7 +308,7 @@ def ownModel(input_shape, fc_size=512, rnn_size=512, dropout=[0.1, 0.1, 0.1], ou
         name="out")(x)
 
     # Change shape
-    labels = Input(name='the_labels', shape=[None, ], dtype='int32')
+    labels = Input(name='the_labels', shape=output_shape, dtype='int32')
     input_length = Input(name='input_length', shape=[1], dtype='int32')
     label_length = Input(name='label_length', shape=[1], dtype='int32')
 
