@@ -97,7 +97,7 @@ if __name__ == '__main__':
     parser.add_argument('--test_files', type=str, default='./data/ldc93s1/ldc93s1.csv',
                         help='list of all validation files, seperate by a comma if multiple')
 
-    parser.add_argument('--model_arch', type=int, default=3,
+    parser.add_argument('--model_arch', type=int, default=2,
                         help='choose between model_arch versions (when training not loading) '
                              '--model_arch=1 uses DS1 fully connected layers with simplernn'
                              '--model_arch=2 uses DS2 fully connected with GRU'

@@ -189,7 +189,7 @@ def ds1(input_dim=26, fc_size=1024, rnn_size=1024, output_dim=29):
     return model
 
 
-def ds2_gru_model(input_dim=161, fc_size=1024, rnn_size=512, output_dim=29, initialization='glorot_uniform',
+def ds2_gru_model(input_shape, output_shape, fc_size=1024, rnn_size=512, output_dim=29, initialization='glorot_uniform',
                   conv_layers=1, gru_layers=1, use_conv=True):
     """ DeepSpeech 2 implementation
 
@@ -215,7 +215,7 @@ def ds2_gru_model(input_dim=161, fc_size=1024, rnn_size=512, output_dim=29, init
 
     set_learning_phase(1)
 
-    input_data = Input(shape=(None, input_dim), name='the_input')
+    input_data = Input(shape=(input_shape[0], input_shape[1]), name='the_input')
     x = BatchNormalization(axis=-1, momentum=0.99, epsilon=1e-3, center=True, scale=True)(input_data)
 
     if use_conv:
@@ -242,7 +242,7 @@ def ds2_gru_model(input_dim=161, fc_size=1024, rnn_size=512, output_dim=29, init
     y_pred = TimeDistributed(Dense(output_dim, name="y_pred", activation="softmax"))(x)
 
     # labels = K.placeholder(name='the_labels', ndim=1, dtype='int32')
-    labels = Input(name='the_labels', shape=[None, ], dtype='int32')
+    labels = Input(name='the_labels', shape=output_shape, dtype='int32')
     input_length = Input(name='input_length', shape=[1], dtype='int32')
     label_length = Input(name='label_length', shape=[1], dtype='int32')
 
