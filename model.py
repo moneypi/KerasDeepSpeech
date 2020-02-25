@@ -59,7 +59,7 @@ def ctc(y_true, y_pred):
     return y_pred
 
 
-def ds1_dropout(input_dim=26, fc_size=2048, rnn_size=512, dropout=[0.1, 0.1, 0.1], output_dim=29):
+def ds1_dropout(input_shape, output_shape, fc_size=2048, rnn_size=512, dropout=[0.1, 0.1, 0.1], output_dim=29):
     """ DeepSpeech 1 Implementation with Dropout
 
     Architecture:
@@ -84,7 +84,7 @@ def ds1_dropout(input_dim=26, fc_size=2048, rnn_size=512, dropout=[0.1, 0.1, 0.1
     set_learning_phase(1)
 
     # Creates a tensor there are usually 26 MFCC
-    input_data = Input(name='the_input', shape=(None, input_dim))  # >>(?, max_batch_seq, 26)
+    input_data = Input(name='the_input', shape=input_shape)  # >>(?, max_batch_seq, 26)
 
     # First 3 FC layers
     init = random_normal_initializer(stddev=0.046875)
@@ -113,7 +113,7 @@ def ds1_dropout(input_dim=26, fc_size=2048, rnn_size=512, dropout=[0.1, 0.1, 0.1
         name="out")(x)
 
     # Change shape
-    labels = Input(name='the_labels', shape=[None, ], dtype='int32')
+    labels = Input(name='the_labels', shape=output_shape, dtype='int32')
     input_length = Input(name='input_length', shape=[1], dtype='int32')
     label_length = Input(name='label_length', shape=[1], dtype='int32')
 
@@ -154,14 +154,11 @@ def ds1(input_dim=26, fc_size=1024, rnn_size=1024, output_dim=29):
 
     # First 3 FC layers
     x = TimeDistributed(
-        Dense(fc_size, name='fc1', kernel_initializer=init, bias_initializer=init, activation=clipped_relu))(
-        input_data)  # >>(?, 778, 2048)
+        Dense(fc_size, name='fc1', kernel_initializer=init, bias_initializer=init, activation=clipped_relu))(input_data)
     x = TimeDistributed(
-        Dense(fc_size, name='fc2', kernel_initializer=init, bias_initializer=init, activation=clipped_relu))(
-        x)  # >>(?, 778, 2048)
+        Dense(fc_size, name='fc2', kernel_initializer=init, bias_initializer=init, activation=clipped_relu))(x)
     x = TimeDistributed(
-        Dense(fc_size, name='fc3', kernel_initializer=init, bias_initializer=init, activation=clipped_relu))(
-        x)  # >>(?, 778, 2048)
+        Dense(fc_size, name='fc3', kernel_initializer=init, bias_initializer=init, activation=clipped_relu))(x)
 
     # # Layer 4 BiDirectional RNN - note coreml only supports LSTM BIDIR
     x = Bidirectional(LSTM(rnn_size, return_sequences=True, activation=clipped_relu,
@@ -215,7 +212,7 @@ def ds2_gru_model(input_shape, output_shape, fc_size=1024, rnn_size=512, output_
 
     set_learning_phase(1)
 
-    input_data = Input(shape=(input_shape[0], input_shape[1]), name='the_input')
+    input_data = Input(shape=input_shape, name='the_input')
     x = BatchNormalization(axis=-1, momentum=0.99, epsilon=1e-3, center=True, scale=True)(input_data)
 
     if use_conv:
@@ -280,8 +277,7 @@ def ownModel(input_shape, output_shape, fc_size=512, rnn_size=512, dropout=[0.1,
 
     # First 3 FC layers
     init = random_normal_initializer(stddev=0.046875)
-    x = TimeDistributed(Dense(fc_size, name='fc1', kernel_initializer=init, bias_initializer=init, activation=selu))(
-        x)  # >>(?, 778, 2048)
+    x = TimeDistributed(Dense(fc_size, name='fc1', kernel_initializer=init, bias_initializer=init, activation=selu))(x)
     x = TimeDistributed(Dropout(dropout[0]))(x)
     x = TimeDistributed(
         Dense(fc_size, name='fc2', kernel_initializer=init, bias_initializer=init, activation=clipped_relu))(

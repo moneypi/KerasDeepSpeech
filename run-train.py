@@ -79,7 +79,7 @@ def main(args):
         print('New model DS{}'.format(args.model_arch))
         if (args.model_arch == 0):
             # DeepSpeech1 with Dropout
-            model = ds1_dropout(input_dim=26, fc_size=args.fc_size, rnn_size=args.rnn_size, dropout=[0.1, 0.1, 0.1],
+            model = ds1_dropout(input_shape, output_shape, fc_size=args.fc_size, rnn_size=args.rnn_size, dropout=[0.1, 0.1, 0.1],
                                 output_dim=29)
         elif (args.model_arch == 1):
             # DeepSpeech1 - no dropout
@@ -196,7 +196,7 @@ if __name__ == '__main__':
                              ' e.g. --loadcheckpointpath ./checkpoints/'
                              'TRIMMED_ds_ctc_model/')
 
-    parser.add_argument('--model_arch', type=int, default=2,
+    parser.add_argument('--model_arch', type=int, default=0,
                         help='choose between model_arch versions (when training not loading) '
                              '--model_arch=1 uses DS1 fully connected layers with LSTM'
                              '--model_arch=2 uses DS2 CNN connected with GRU'
